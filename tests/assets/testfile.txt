@@ -1,0 +1,3 @@
+this is a regular file
+
+clamd should fine this OK!

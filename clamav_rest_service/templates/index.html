@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>ClamAV REST Service</title>
+    <link rel="stylesheet" href='https://fonts.googleapis.com/css?family=Work Sans'>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <div class="main-container">
+      <h2>ClamAV REST service</h2>
+      <h3>Sandboxed file scanning with <a href="https://www.clamav.net/">ClamAV</a> via REST API</h3>
+      <div class="section">
+        <hr></hr>
+        <p>API docs: <a href="/swagger-ui">Swagger UI</a></p>
+      </div>
+      <div class="section">
+        <hr></hr>
+        <h4>Connection status (command: <samp>PING</samp>)</h4>
+        <div class="clamd-reply"><samp>{{ pong }}</samp></div>
+      </div>
+      <div class="section">
+        <hr></hr>
+        <h4>Version (command: <samp>VERSION</samp>)</h4>
+        <div class="clamd-reply"><samp>{{ version }}</samp></div>
+      </div>
+      <div class="section">
+        <hr></hr>
+        <h4>Stats (command: <samp>STATS</samp>)</h4>
+        <div class="clamd-reply"><samp>
+            {% for line in stats.split('\n') %}
+            {{ line }}
+            <br />
+            {% endfor %}
+        </samp></div>
+      </div>
+    </div>
+    {% include "footer.html" %}
+  </body>
+</html>

@@ -1,0 +1,24 @@
+[project]
+name = "clamav-rest-service"
+version = "0.1.0"
+description = "ClamAV file scanning sandbox service"
+authors = [
+    {name = "Tommaso Rossi",email = "tommaso.rossi@pagopa.it"}
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "flask (>=3.1.0,<4.0.0)",
+    "flask-swagger (>=0.2.14,<0.3.0)",
+]
+
+[project.optional-dependencies]
+gunicorn = ["gunicorn>=23.0.0,<24.0.0"]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.4"

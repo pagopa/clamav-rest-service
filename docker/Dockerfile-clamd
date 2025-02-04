@@ -1,0 +1,41 @@
+FROM python:3.12-bookworm
+
+WORKDIR /app
+
+# install system dependencies (clamd, freshclam)
+RUN apt update && apt install -y clamav-daemon
+
+# install python tooling (poetry)
+RUN pip install --no-cache-dir poetry==2.0.1
+
+# install application dependencies
+COPY pyproject.toml poetry.lock ./
+RUN poetry config virtualenvs.create false && \
+    poetry install --no-interaction --all-extras --without dev --no-root && \
+    rm -rf /root/.cache/pypoetry
+
+# copy sources and config
+COPY clamav_rest_service clamav_rest_service
+COPY docker/clamav /etc/clamav
+COPY docker/clamd-entrypoint.sh /entrypoint.sh
+
+# arrange ownerships and permissions for the clamav user
+RUN mkdir -p /var/log/clamav /var/lib/clamav /var/run/clamav && \
+    chown -R clamav /var/log/clamav && \
+    chown -R clamav /var/lib/clamav && \
+    chown -R clamav /var/run/clamav && \
+    touch /var/log/clamav/clamav.log /var/log/clamav/freshclam.log && \
+    chmod 600 /var/log/clamav/clamav.log && \
+    chmod 600 /var/log/clamav/freshclam.log
+
+# default configuration
+ENV CLAMAV_CLAMD_SOCKET_PATH=/var/run/clamav/clamd.sock
+ENV CLAMAV_FRESHCLAM_DAILY_CHECKS=1440
+
+EXPOSE 80
+
+# do not run as root. this user is created by the clamav debian package
+USER clamav
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["gunicorn", "-b", "0.0.0.0:80", "-w", "3", "clamav_rest_service:app"]

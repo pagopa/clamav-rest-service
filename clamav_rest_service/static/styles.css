@@ -1,0 +1,25 @@
+.main-container {
+    font-family: Work Sans;
+    margin: 20px;
+}
+
+.section {
+    margin-top: 30px;
+}
+
+.clamd-reply {
+    background-color: black;
+    color: white;
+    width: fit-content;
+    block-size: fit-content;
+}
+
+footer {
+    font-family: Work Sans;
+    margin-top: 100px;
+    margin-left: 20px;
+}
+
+footer > span {
+    color: #808080;
+}

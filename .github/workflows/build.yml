@@ -1,0 +1,49 @@
+# Just build the image to prove that the incoming PR builds
+
+name: Build
+
+on:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - opened
+      - edited
+      - synchronize
+      - reopened
+    paths-ignore:
+      - 'CODEOWNERS'
+      - '**.md'
+      - '.**'
+      - '.identity/**'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        image_type:
+          - clamd
+          - slim
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
+
+      - name: Build Docker image ${{ matrix.image_type }}
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcef730109a75 # v6.9.0
+        with:
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          dockerfile: docker/Dockerfile-${{ matrix.image_type }}
+          tags: |
+            ghcr.io/${{ github.repository }}:snapshot-${{ matrix.image_type }}

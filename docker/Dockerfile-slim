@@ -1,0 +1,25 @@
+FROM python:3.12-bookworm
+
+WORKDIR /app
+
+# install python tooling (poetry)
+RUN pip install --no-cache-dir poetry==2.0.1
+
+# install application dependencies
+COPY pyproject.toml poetry.lock ./
+RUN poetry config virtualenvs.create false && \
+    poetry install --no-interaction --all-extras --without dev --no-root && \
+    rm -rf /root/.cache/pypoetry
+
+# copy sources and config
+COPY clamav_rest_service clamav_rest_service
+COPY docker/clamav /etc/clamav
+
+EXPOSE 80
+
+# do not run as root
+RUN useradd -ms /bin/bash clamav
+USER clamav
+
+ENTRYPOINT ["gunicorn"]
+CMD ["-b", "0.0.0.0:80", "-w", "3", "clamav_rest_service:app"]

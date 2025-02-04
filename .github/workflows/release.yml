@@ -1,0 +1,49 @@
+name: Release and Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - 'CODEOWNERS'
+      - '**.md'
+      - '.**'
+      - '.identity/**'
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-24.04
+
+    permissions:
+      contents: write
+      issues: write
+      packages: write
+      pull-requests: read
+
+    outputs:
+      new-release-published: ${{ steps.release.outputs.new-release-published }}
+      new-release-image: ${{ steps.release.outputs.new-release-image }}
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: Release
+        id: release
+        uses: pagopa/ict-github-actions/semantic-release-ghcr@7b9f0300421af37c88c729b3849a80fce8820f20 # v1.5.2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          dockerfile: docker/Dockerfile-clamd
+
+      - name: Print release info
+        shell: bash
+        run: |
+          echo "Release published: ${{ steps.release.outputs.new-release-published }}"
+          echo "Release image:     ${{ steps.release.outputs.new-release-image }}"
+          echo "Release version:   ${{ steps.release.outputs.new-release-version }}"
