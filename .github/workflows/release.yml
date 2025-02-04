@@ -20,7 +20,7 @@ jobs:
       contents: write
       issues: write
       packages: write
-      pull-requests: read
+      pull-requests: write
 
     outputs:
       new-release-published: ${{ steps.release.outputs.new-release-published }}
