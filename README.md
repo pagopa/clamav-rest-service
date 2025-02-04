@@ -106,7 +106,7 @@ CLAMAV_CLAMD_HOST=my.clamd.host
 CLAMAV_CLAMD_PORT=8080
 ```
 
-> ![WARNING]
+> [!WARNING]
 > The connection via TCP is obviously not encrypted: when using this
 > option you should probably configure proper networking in order to
 > protect the `clamd` instance and make it reachable only from the
@@ -146,7 +146,7 @@ The ClamAV bundled image runs also a pre-configured `freshclam` daemon
 refreshing the database once a day (see
 [freshclam.conf](docker/clamav/freshclam.conf).
 
-> ![NOTE]
+> [!NOTE]
 > During container startup you will see a warning like this: `WARNING:
 > Tue Feb 4 15:39:54 2025 -> Clamd was NOT notified: Can't connect to
 > clamd through /var/run/clamav/clamd.sock: No such file or directory`
@@ -180,8 +180,10 @@ poetry install --all-extras
 ```
 
 Run test suite:
-> ![NOTE]
+
+> [!NOTE]
 > Tests do not have a clamd mock at the moment and they do require a running clamd daemon
+
 ```shell
 poetry run pytest
 ```
