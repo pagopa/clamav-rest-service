@@ -3,7 +3,7 @@
 set -e
 
 # redirect daemons output to stderr
-tail --pid 1 -n0 -F /var/log/clamav/clamd.log /var/log/clamav/clamd.log > /dev/stderr &
+tail --pid 1 -n0 -F /var/log/clamav/clamd.log /var/log/clamav/freshclam.log > /dev/stderr &
 
 # update antivirus database
 freshclam
