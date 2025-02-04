@@ -1,0 +1,9 @@
+*.md
+.gitignore
+.releaserc.json
+.github/
+**/.git/
+**/.DS_Store
+
+# custom
+tests/
