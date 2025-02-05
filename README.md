@@ -9,6 +9,9 @@ This application is a wrapper around a ClamAV daemon (`clamd`) consisting in:
 * REST API for invoking `clamd` commands via socket. API bindings are
   written with the Flask framework
   
+No authentication of any type is implemented whatsoever: be sure that
+your ClamAV REST service is adequately protected.
+
 ## Usage
 
 When running the application, you can find API docs at `/swagger-ui`.

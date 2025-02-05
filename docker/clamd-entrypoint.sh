@@ -1,4 +1,7 @@
 #!/bin/env bash
+#
+# Entrypoint of the ClamAV REST service with bundled clamd.
+#
 
 set -e
 

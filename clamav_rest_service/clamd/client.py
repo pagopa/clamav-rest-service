@@ -1,3 +1,12 @@
+"""Client for clamd.
+
+It comes in two shapes:
+ - ClamdUnixSocket for clamav daemon running locally
+ - ClamdTCPSocket for clamav daemon on the network
+
+Once connection is established, the behaviour is the same.
+
+"""
 import abc
 import logging
 import re
@@ -168,7 +177,12 @@ class Clamd(abc.ABC):
 
     def _send_command_streaming(self,
                                 command: str,
-                                input_stream: t.IO[bytes]) -> str:
+                                input_stream: t.IO[bytes]) -> None:
+        """Send a command streaming content to clamd.
+
+        :param command: Command to send
+        :input_stream: Input stream to send chunked to clamd
+        """
         self._send_command(command)
 
         # for packing the chunk we prepend the length of chunk data in a
@@ -193,6 +207,11 @@ class Clamd(abc.ABC):
         self._sock.send(struct.pack('!L', 0))
 
     def _parse_response(self, raw_resp: str) -> ClamdCmdResponse:
+        """Parse a generic clamd response to a command.
+
+        :param raw_resp: Raw clamd response string
+        :return: Structured response object
+        """
         # split lines using cmd terminator (clamd respects the
         # terminator that we chose)
         raw_resp_lines = raw_resp.split(self.cmd_terminator.decode())
@@ -209,6 +228,11 @@ class Clamd(abc.ABC):
         )
 
     def _parse_scan_result(self, raw_resp: str) -> ClamdScanResult:
+        """Parse a scanning command response.
+
+        :param raw_resp: Raw clamd response string
+        :return: Structured scan result
+        """
         resp = self._parse_response(raw_resp)
 
         # parse the main line (message)
@@ -255,6 +279,11 @@ class Clamd(abc.ABC):
 
 class ClamdUnixSocket(Clamd):
     """Client for clamd daemon over UNIX domain socket.
+
+    This is the recommended option when clamd is running on the same host.
+
+    When using this option, clamd should be running with 'LocalSocket <path>'
+    configuration option in clamd.conf (see man clamd.conf(5)).
     """
     def __init__(self,
                  socket_path: str,
@@ -287,6 +316,12 @@ class ClamdUnixSocket(Clamd):
 
 class ClamdTCPSocket(Clamd):
     """Client for clamd daemon over TCP socket.
+
+    This is the recommended (only) option when clamd is running on
+    other host in the network.
+
+    When using this option, clamd should be running with 'TCPSocket <port>'
+    configuration option in clamd.conf (see man clamd.conf(5)).
     """
     def __init__(self,
                  host: str,

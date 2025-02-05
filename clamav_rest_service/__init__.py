@@ -1,3 +1,24 @@
+"""ClamAV REST Service is a REST interface for ClamAV daemon.
+
+The ClamAV daemon (clamd) can be either reached via Unix domain socket
+or TCP socket.  This behaviour can be specified via configuration.
+
+Configuration: all configuration is managed through environment
+variables.  All environment variables starting with "CLAMAV_" prefix
+are loaded into the application.
+
+No authentication of any type is implemented whatsoever: be sure that
+your ClamAV REST service is adequately protected.
+
+The following variables are accepted:
+
+ - CLAMAV_CLAMD_SOCKET_PATH : application will connect to clamd
+    running on Unix socket at path specified.
+ - CLAMAV_CLAMD_HOST : application will connect to clamd running on TCP
+    socket at host specified; also CLAMAV_CLAMD_PORT is expected
+ - CLAMAV_CLAMD_PORT : use with CLAMAV_CLAMD_PORT
+
+"""
 import logging
 
 from flask import Flask, jsonify, render_template, request
@@ -31,7 +52,7 @@ if __name__ != '__main__':
 @app.route("/", methods=["GET"])
 @app.route("/index.html", methods=["GET"])
 def index():
-    """HTML status page.
+    """Welcome page.
     """
     with clamd_instance() as clamd:
         pong = clamd.ping()
@@ -165,6 +186,7 @@ def scan_file():
 
     app.logger.info("Starting scan for file %s", filename)
     with clamd_instance() as clamd:
+        # we send an open stream to the clamd instance
         result = clamd.instream(file_to_analyze.stream)
 
     # the file pointer is at the end of the stream, so tell() will

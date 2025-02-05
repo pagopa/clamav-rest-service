@@ -1,3 +1,6 @@
+"""Types for clamd communication.
+
+"""
 from dataclasses import dataclass
 from enum import Enum
 
@@ -36,9 +39,5 @@ class ClamdScanResult(ClamdCmdResponse):
     """
     input_file: str
     status: ClamdScanStatus
-    # TODO file size is not an info clamd returns, it's entirely on
-    # the client. therefore, this parameter is probably bad design,
-    # but... it's very handy
-    # file_size: int
     virus: str | None = None
     err_msg: str | None = None
