@@ -44,6 +44,6 @@ jobs:
           push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          dockerfile: docker/Dockerfile-${{ matrix.image_type }}
+          file: docker/Dockerfile-${{ matrix.image_type }}
           tags: |
             ghcr.io/${{ github.repository }}:snapshot-${{ matrix.image_type }}
