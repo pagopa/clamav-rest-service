@@ -47,3 +47,47 @@ jobs:
           echo "Release published: ${{ steps.release.outputs.new-release-published }}"
           echo "Release image:     ${{ steps.release.outputs.new-release-image }}"
           echo "Release version:   ${{ steps.release.outputs.new-release-version }}"
+
+  deploy-dev:
+    name: Deploy DEV
+    runs-on: ubuntu-24.04
+    environment: dev
+    needs: [release]
+    if: needs.release.outputs.new-release-published == 'true'
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Deploy
+        uses: pagopa/ict-github-actions/appservice-deploy@7b9f0300421af37c88c729b3849a80fce8820f20 # v1.5.2
+        with:
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          resource-group-name: ${{ vars.RESOURCE_GROUP_NAME }}
+          app-name: ${{ vars.APP_NAME }}
+          image: ${{ needs.release.outputs.new-release-image }}
+
+  deploy-prod:
+    name: Deploy PROD
+    runs-on: ["self-hosted-job", "prod"]
+    environment: prod
+    needs: [release, deploy-dev]
+    if: needs.release.outputs.new-release-published == 'true'
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Deploy
+        uses: pagopa/ict-github-actions/appservice-deploy@7b9f0300421af37c88c729b3849a80fce8820f20 # v1.5.2
+        with:
+          tenant-id: ${{ secrets.ARM_TENANT_ID }}
+          subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.ARM_CLIENT_ID }}
+          resource-group-name: ${{ vars.RESOURCE_GROUP_NAME }}
+          app-name: ${{ vars.APP_NAME }}
+          image: ${{ needs.release.outputs.new-release-image }}
