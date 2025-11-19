@@ -15,7 +15,13 @@
       </div>
       <div class="section">
         <hr></hr>
-        <h4>Connection status (command: <samp>PING</samp>)</h4>
+        <h4>Connection status:
+          {% if connection_up %}
+          <span class="clamd-status-up">UP</span>
+          {% else %}
+          <span class="clamd-status-down">DOWN</span>
+          {% endif %}
+          (command: <samp>PING</samp>)</h4>
         <div class="clamd-reply"><samp>{{ pong }}</samp></div>
       </div>
       <div class="section">
