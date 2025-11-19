@@ -55,21 +55,41 @@ if __name__ != '__main__':
 def index():
     """Welcome page.
     """
-    with clamd_instance() as clamd:
-        pong = clamd.ping()
+    # try to ping clamd
+    try:
+        with clamd_instance() as clamd:
+            pong = clamd.ping().message
+        connection_up = pong == "PONG"
+    except Exception as e:
+        app.logger.exception("Unable to ping clamav: %s", str(e))
+        connection_up = False
 
-    with clamd_instance() as clamd:
-        stats = clamd.stats()
+    if connection_up:
+        # try to get clamd version
+        try:
+            with clamd_instance() as clamd:
+                version = clamd.version().message
+        except Exception as e:
+            app.logger.exception("Unable to get clamav stats: %s", str(e))
+            stats = "Unable to get ClamAV version."
 
-    with clamd_instance() as clamd:
-        version = clamd.version()
+        # try to get clamd stats
+        try:
+            with clamd_instance() as clamd:
+                stats = clamd.stats().message
+        except Exception as e:
+            app.logger.exception("Unable to get clamav stats: %s", str(e))
+            stats = "Unable to get ClamAV stats."
+    else:
+        pong = version = stats = "Unable to connect to ClamAV service."
 
     return render_template(
         "index.html",
-        pong=pong.message,
-        version=version.message,
-        stats=stats.message,
-    ), 200 if pong.message == "PONG" else 503
+        connection_up=connection_up,
+        pong=pong,
+        version=version,
+        stats=stats,
+    )
 
 
 @app.route("/swagger-ui")

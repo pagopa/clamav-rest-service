@@ -23,3 +23,17 @@ footer {
 footer > span {
     color: #808080;
 }
+
+.clamd-status-up {
+    background-color: #007D3E;
+    color: white;
+    width: fit-content;
+    block-size: fit-content;
+}
+
+.clamd-status-down {
+    background-color: #CC071E;
+    color: white;
+    width: fit-content;
+    block-size: fit-content;
+}
