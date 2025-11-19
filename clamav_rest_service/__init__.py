@@ -38,7 +38,6 @@ app = Flask(__name__)
 # app.config without CLAMAV_
 app.config.from_prefixed_env("CLAMAV")
 
-
 # fix gunicorn logging
 if __name__ != '__main__':
     gunicorn_logger = logging.getLogger('gunicorn.error')
@@ -46,10 +45,10 @@ if __name__ != '__main__':
     app.logger.setLevel(gunicorn_logger.level)
     app.logger.propagate = False
 
-
 ##
 # Pages
 ##
+
 
 @app.route("/", methods=["GET"])
 @app.route("/index.html", methods=["GET"])
@@ -83,6 +82,7 @@ def swagger_ui():
 ##
 # API
 ##
+
 
 @app.route("/api/v1/doc")
 def api_doc():
@@ -195,8 +195,8 @@ def scan_file():
     # give us the size in bytes
     file_size = file_to_analyze.stream.tell()
     app.logger.info("Scanned file \"%s\" (%d bytes) with status %s - %s",
-                    filename, file_size, result.status.value,
-                    result.virus or "no virus")
+                    filename.replace('\r\n', '').replace('\n', ''), file_size,
+                    result.status.value, result.virus or "no virus")
     app.logger.debug("Scan raw response: %s", result.raw_data)
 
     # pack the response
@@ -302,6 +302,7 @@ def clamav_version():
 # Error handlers
 ##
 
+
 @app.errorhandler(HTTPException)
 def handle_http_exception(e):
     """Handle an HTTP exception and return JSON.
@@ -325,6 +326,7 @@ def handle_exception(e):
 ##
 # Helpers
 ##
+
 
 def clamd_instance():
     """Get a clamd isntance based on app config.
