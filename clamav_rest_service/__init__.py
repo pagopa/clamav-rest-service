@@ -22,6 +22,7 @@ The following variables are accepted:
 import logging
 
 from flask import Flask, jsonify, render_template, request
+from flask.logging import default_handler
 from flask_swagger import swagger
 from werkzeug.exceptions import HTTPException
 
@@ -37,17 +38,17 @@ app = Flask(__name__)
 # app.config without CLAMAV_
 app.config.from_prefixed_env("CLAMAV")
 
-
 # fix gunicorn logging
 if __name__ != '__main__':
     gunicorn_logger = logging.getLogger('gunicorn.error')
-    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.handlers = gunicorn_logger.handlers[:]
     app.logger.setLevel(gunicorn_logger.level)
-
+    app.logger.propagate = False
 
 ##
 # Pages
 ##
+
 
 @app.route("/", methods=["GET"])
 @app.route("/index.html", methods=["GET"])
@@ -81,6 +82,7 @@ def swagger_ui():
 ##
 # API
 ##
+
 
 @app.route("/api/v1/doc")
 def api_doc():
@@ -183,8 +185,10 @@ def scan_file():
         return {"error": "No file attached"}, 400
     file_to_analyze = request.files['file']
     filename = file_to_analyze.filename
+    # sanitize filename to prevent log injection
+    safe_filename = filename.replace('\r\n', '').replace('\n', '')
 
-    app.logger.info("Starting scan for file %s", filename)
+    app.logger.debug("Starting scan for file \"%s\"", safe_filename)
     with clamd_instance() as clamd:
         # we send an open stream to the clamd instance
         result = clamd.instream(file_to_analyze.stream)
@@ -192,9 +196,9 @@ def scan_file():
     # the file pointer is at the end of the stream, so tell() will
     # give us the size in bytes
     file_size = file_to_analyze.stream.tell()
-    app.logger.info("Scanned file %s (%d bytes) with status %s - %s",
-                    filename, file_size, result.status.value,
-                    result.virus or "no virus")
+    app.logger.info("Scanned file \"%s\" (%d bytes) with status %s - %s",
+                    safe_filename, file_size, result.status.value, result.virus
+                    or "no virus")
     app.logger.debug("Scan raw response: %s", result.raw_data)
 
     # pack the response
@@ -300,6 +304,7 @@ def clamav_version():
 # Error handlers
 ##
 
+
 @app.errorhandler(HTTPException)
 def handle_http_exception(e):
     """Handle an HTTP exception and return JSON.
@@ -323,6 +328,7 @@ def handle_exception(e):
 ##
 # Helpers
 ##
+
 
 def clamd_instance():
     """Get a clamd isntance based on app config.
