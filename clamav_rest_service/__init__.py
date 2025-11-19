@@ -185,8 +185,10 @@ def scan_file():
         return {"error": "No file attached"}, 400
     file_to_analyze = request.files['file']
     filename = file_to_analyze.filename
+    # sanitize filename to prevent log injection
+    safe_filename = filename.replace('\r\n', '').replace('\n', '')
 
-    app.logger.debug("Starting scan for file \"%s\"", filename)
+    app.logger.debug("Starting scan for file \"%s\"", safe_filename)
     with clamd_instance() as clamd:
         # we send an open stream to the clamd instance
         result = clamd.instream(file_to_analyze.stream)
@@ -195,8 +197,8 @@ def scan_file():
     # give us the size in bytes
     file_size = file_to_analyze.stream.tell()
     app.logger.info("Scanned file \"%s\" (%d bytes) with status %s - %s",
-                    filename.replace('\r\n', '').replace('\n', ''), file_size,
-                    result.status.value, result.virus or "no virus")
+                    safe_filename, file_size, result.status.value, result.virus
+                    or "no virus")
     app.logger.debug("Scan raw response: %s", result.raw_data)
 
     # pack the response
