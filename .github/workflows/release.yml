@@ -69,6 +69,8 @@ jobs:
           resource-group-name: ${{ vars.RESOURCE_GROUP_NAME }}
           app-name: ${{ vars.APP_NAME }}
           image: ${{ needs.release.outputs.new-release-image }}
+          # no staging slot in dev
+          direct-deploy-to-prod: true
 
   deploy-prod:
     name: Deploy PROD
