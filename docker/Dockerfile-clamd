@@ -7,6 +7,16 @@ WORKDIR /app
 RUN apt update && apt install -y \
     clamav-daemon=${CLAMAV_VERSION}*
 
+# install supercronic (see https://github.com/aptible/supercronic/releases)
+ENV SUPERCRONIC_URL=https://github.com/aptible/supercronic/releases/download/v0.2.42/supercronic-linux-amd64 \
+    SUPERCRONIC_SHA1SUM=b444932b81583b7860849f59fdb921217572ece2 \
+    SUPERCRONIC=supercronic-linux-amd64
+RUN curl -fsSLO "$SUPERCRONIC_URL" \
+ && echo "${SUPERCRONIC_SHA1SUM}  ${SUPERCRONIC}" | sha1sum -c - \
+ && chmod +x "$SUPERCRONIC" \
+ && mv "$SUPERCRONIC" "/usr/local/bin/${SUPERCRONIC}" \
+ && ln -s "/usr/local/bin/${SUPERCRONIC}" /usr/local/bin/supercronic
+
 # install python tooling (poetry)
 RUN pip install --no-cache-dir poetry==2.0.1
 
@@ -32,8 +42,7 @@ RUN mkdir -p /var/log/clamav /var/lib/clamav /var/run/clamav && \
 
 # default configuration
 ENV CLAMAV_CLAMD_SOCKET_PATH=/var/run/clamav/clamd.sock
-ENV CLAMAV_FRESHCLAM_DAILY_CHECKS=1440
-
+ENV CLAMAV_DB_REFRESH_CRON="0 4 * * *"
 EXPOSE 80
 
 # do not run as root. this user is created by the clamav debian package
