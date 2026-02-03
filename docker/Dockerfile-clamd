@@ -43,6 +43,13 @@ RUN mkdir -p /var/log/clamav /var/lib/clamav /var/run/clamav && \
 # default configuration
 ENV CLAMAV_CLAMD_SOCKET_PATH=/var/run/clamav/clamd.sock
 ENV CLAMAV_DB_REFRESH_CRON="0 4 * * *"
+# set test mode off by default.
+# WARNING this is unsafe only for testing environments!
+# it will cause the signature db to be replaced with a
+# fake db with single entry for eicar test file. this
+# allows a testing environment without high memory usage
+# (clamd loads the whole signature db in memory)
+ENV CLAMAV_TEST_MODE=false
 EXPOSE 80
 
 # do not run as root. this user is created by the clamav debian package
