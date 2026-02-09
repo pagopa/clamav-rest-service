@@ -85,7 +85,7 @@ jobs:
 
     steps:
       - name: Deploy
-        uses: pagopa/ict-github-actions/appservice-deploy@7b9f0300421af37c88c729b3849a80fce8820f20 # v1.5.2
+        uses: pagopa/ict-github-actions/appservice-deploy@webapp-slot-health-check
         with:
           tenant-id: ${{ secrets.ARM_TENANT_ID }}
           subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
@@ -93,3 +93,5 @@ jobs:
           resource-group-name: ${{ vars.RESOURCE_GROUP_NAME }}
           app-name: ${{ vars.APP_NAME }}
           image: ${{ needs.release.outputs.new-release-image }}
+          staging-check-enabled: true
+          staging-check-endpoint: /health
