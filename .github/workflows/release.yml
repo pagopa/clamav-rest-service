@@ -85,7 +85,7 @@ jobs:
 
     steps:
       - name: Deploy
-        uses: pagopa/ict-github-actions/appservice-deploy@webapp-slot-health-check
+        uses: pagopa/ict-github-actions/appservice-deploy@6c285f2c5ba15120a1bd9c13ae0ed0a1d20c6524 # v5.1.0
         with:
           tenant-id: ${{ secrets.ARM_TENANT_ID }}
           subscription-id: ${{ secrets.ARM_SUBSCRIPTION_ID }}
