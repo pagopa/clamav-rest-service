@@ -22,7 +22,6 @@ The following variables are accepted:
 import logging
 
 from flask import Flask, jsonify, render_template, request
-from flask.logging import default_handler
 from flask_swagger import swagger
 from werkzeug.exceptions import HTTPException
 
@@ -182,10 +181,6 @@ def scan_file():
               type: string
               description: Status of the scanning {OK,FOUND,ERROR}
               example: FOUND
-            input_file:
-              type: string
-              description: Input file that was scanned
-              example: myfile.txt
             virus:
               type: string
               description: Virus found, if any
@@ -224,10 +219,6 @@ def scan_file():
     # pack the response
     resp_body = {
         "status": result.status.value,
-        # the input_file is always "stream" as returned by clamd
-        # INSTREAM command, use what the client told us about the file
-        # for a more significative response to the user "input_file":
-        "input_file": filename,
         "virus": result.virus,
         "details": result.details,
         "error": result.err_msg,
